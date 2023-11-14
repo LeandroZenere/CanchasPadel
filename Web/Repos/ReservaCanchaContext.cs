@@ -42,6 +42,10 @@ public partial class ReservaCanchaContext : DbContext
 
         //modelBuilder.Entity<Funcion>().Property(t => t.Id).ValueGeneratedOnAdd();
         //modelBuilder.Entity<FuncionTarifa>().Property(t => t.Id).ValueGeneratedOnAdd();
+        modelBuilder.Entity<Estado>().HasData(
+            new Estado { Id = 1, Nombre = "Reservada" },
+            new Estado { Id = 2, Nombre = "Disponible" }
+        );
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

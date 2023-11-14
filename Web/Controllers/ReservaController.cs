@@ -22,7 +22,7 @@ namespace Web.Controllers
         // GET: Reserva
         public async Task<IActionResult> Index()
         {
-            var reservaCanchaContext = _context.Reserva.Include(r => r.Cancha).Include(r => r.Estado);
+            var reservaCanchaContext = _context.Reserva.Include(r => r.Cancha).Include(r => r.Estado).Include(r => r.Persona);
             return View(await reservaCanchaContext.ToListAsync());
         }
 
@@ -37,6 +37,7 @@ namespace Web.Controllers
             var reserva = await _context.Reserva
                 .Include(r => r.Cancha)
                 .Include(r => r.Estado)
+                .Include(r => r.Persona)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (reserva == null)
             {
@@ -49,8 +50,11 @@ namespace Web.Controllers
         // GET: Reserva/Create
         public IActionResult Create()
         {
-            ViewData["idCancha"] = new SelectList(_context.Cancha, "Id", "Id");
-            ViewData["idEstado"] = new SelectList(_context.Estado, "Id", "Id");
+            ViewBag.idCancha = new SelectList(_context.Cancha, "Id", "Nombre");
+            //ViewBag.idPersona = _context.Persona.Select(p => new SelectListItem { Value = p.Id.ToString(), Text = $"{p.Nombre} {p.Apellido}" });
+            ViewBag.idPersona = new SelectList(_context.Persona, "Id", "NombreCompleto");
+            ViewBag.idEstado = new SelectList(_context.Estado, "Id", "Nombre");
+
             return View();
         }
 
@@ -59,27 +63,32 @@ namespace Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Fecha,HoraInicio,HoraFin,idCancha,idEstado, PersonaNombre, PersonaApellido")] Reserva reserva)
+        public async Task<IActionResult> Create([Bind("Fecha,HoraInicio,HoraFin,idCancha,idEstado, idPersona")] Reserva reserva)
         {
             if (ModelState.IsValid)
             {
-                // Save the reservation to the database
-                _context.Add(reserva);
-                await _context.SaveChangesAsync();
 
-                // Update the cancha's state
-                Cancha cancha = _context.Cancha.Find(reserva.idCancha);
-                cancha.Estado = reserva.idEstado;
-                _context.SaveChanges();
+                reserva.Cancha = await _context.Cancha.FindAsync(reserva.idCancha);
+                reserva.Persona = await _context.Persona.FindAsync(reserva.idPersona);
+                reserva.Estado = await _context.Estado.FindAsync(reserva.idEstado);
+
+
+                _context.Reserva.Add(reserva);
+                await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["idCancha"] = new SelectList(_context.Cancha, "Id", "Nombre", reserva.idCancha);
-            ViewData["idEstado"] = new SelectList(_context.Estado, "Id", "Nombre", reserva.idEstado);
-            return View(reserva);
 
-            // GET: Reserva/Edit/5
-            public async Task<IActionResult> Edit(int? id)
+
+            ViewBag.idCancha = new SelectList(_context.Cancha, "Id", "Nombre", reserva.idCancha);
+            ViewBag.idPersona = new SelectList(_context.Persona, "Id", "NombreCompleto", reserva.idPersona);
+            ViewBag.idEstado = new SelectList(_context.Estado, "Id", "Nombre", reserva.idEstado);
+
+            return View(reserva);
+        }
+
+    // GET: Reserva/Edit/5
+    public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Reserva == null)
             {
@@ -93,6 +102,7 @@ namespace Web.Controllers
             }
             ViewData["idCancha"] = new SelectList(_context.Cancha, "Id", "Id", reserva.idCancha);
             ViewData["idEstado"] = new SelectList(_context.Estado, "Id", "Id", reserva.idEstado);
+            ViewData["idPersona"] = new SelectList(_context.Persona, "Id", "Id", reserva.idPersona);
             return View(reserva);
         }
 
@@ -101,7 +111,7 @@ namespace Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Fecha,HoraInicio,HoraFin,idCancha,idEstado")] Reserva reserva)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Fecha,HoraInicio,HoraFin,idCancha,idPersona,idEstado")] Reserva reserva)
         {
             if (id != reserva.Id)
             {
@@ -130,6 +140,7 @@ namespace Web.Controllers
             }
             ViewData["idCancha"] = new SelectList(_context.Cancha, "Id", "Id", reserva.idCancha);
             ViewData["idEstado"] = new SelectList(_context.Estado, "Id", "Id", reserva.idEstado);
+            ViewData["idPersona"] = new SelectList(_context.Persona, "Id", "Id", reserva.idPersona);
             return View(reserva);
         }
 
@@ -144,6 +155,7 @@ namespace Web.Controllers
             var reserva = await _context.Reserva
                 .Include(r => r.Cancha)
                 .Include(r => r.Estado)
+                .Include(r => r.Persona)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (reserva == null)
             {
@@ -176,7 +188,5 @@ namespace Web.Controllers
         {
           return (_context.Reserva?.Any(e => e.Id == id)).GetValueOrDefault();
         }
-
-
     }
 }

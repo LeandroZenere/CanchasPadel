@@ -16,6 +16,7 @@ namespace Web.Models
         public string FotoDni { get; set; }
 
         public string Telefono { get; set; }
+        public string NombreCompleto => $"{Nombre} {Apellido}";
     }
 
 }

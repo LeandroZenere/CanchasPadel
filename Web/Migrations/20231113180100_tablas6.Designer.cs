@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Repos;
 
@@ -11,9 +12,11 @@ using Web.Repos;
 namespace Web.Migrations
 {
     [DbContext(typeof(ReservaCanchaContext))]
-    partial class ReservaCanchaContextModelSnapshot : ModelSnapshot
+    [Migration("20231113180100_tablas6")]
+    partial class tablas6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,18 +63,6 @@ namespace Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Estado");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Nombre = "Reservada"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Nombre = "Disponible"
-                        });
                 });
 
             modelBuilder.Entity("Web.Models.Persona", b =>

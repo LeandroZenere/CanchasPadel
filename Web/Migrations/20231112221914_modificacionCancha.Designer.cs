@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Repos;
 
@@ -11,9 +12,11 @@ using Web.Repos;
 namespace Web.Migrations
 {
     [DbContext(typeof(ReservaCanchaContext))]
-    partial class ReservaCanchaContextModelSnapshot : ModelSnapshot
+    [Migration("20231112221914_modificacionCancha")]
+    partial class modificacionCancha
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,15 +33,13 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Disponible")
-                        .HasColumnType("bit");
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Precio")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -60,18 +61,6 @@ namespace Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Estado");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Nombre = "Reservada"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Nombre = "Disponible"
-                        });
                 });
 
             modelBuilder.Entity("Web.Models.Persona", b =>
@@ -130,16 +119,11 @@ namespace Web.Migrations
                     b.Property<int>("idEstado")
                         .HasColumnType("int");
 
-                    b.Property<int>("idPersona")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("idCancha");
 
                     b.HasIndex("idEstado");
-
-                    b.HasIndex("idPersona");
 
                     b.ToTable("Reserva");
                 });
@@ -158,17 +142,9 @@ namespace Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Web.Models.Persona", "Persona")
-                        .WithMany()
-                        .HasForeignKey("idPersona")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Cancha");
 
                     b.Navigation("Estado");
-
-                    b.Navigation("Persona");
                 });
 #pragma warning restore 612, 618
         }
