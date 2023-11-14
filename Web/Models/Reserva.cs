@@ -17,12 +17,12 @@ namespace Web.Models
         public int idEstado { get; set; }
 
         [ForeignKey("idCancha")]
-        public Cancha Cancha { get; set; }
+        public virtual Cancha? Cancha { get; set; }
         [ForeignKey("idPersona")]
-        public Persona Persona { get; set; }
+        public virtual Persona? Persona { get; set; }
 
         [ForeignKey("idEstado")]
-        public Estado Estado { get; set; }
+        public virtual Estado? Estado { get; set; }
     }
 
 }
