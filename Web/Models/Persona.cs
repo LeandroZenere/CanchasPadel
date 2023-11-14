@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Web.Models
 {
@@ -13,7 +14,8 @@ namespace Web.Models
 
         public string Dni { get; set; }
 
-        public string FotoDni { get; set; }
+        [Display(Name = "Foto")]
+        public string? FotoDni { get; set; }
 
         public string Telefono { get; set; }
         public string NombreCompleto => $"{Nombre} {Apellido}";

@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Web.Models;
 using Web.Repos;
+using Web.ViewModels;
 
 namespace Web.Controllers
 {
     public class PersonaController : Controller
     {
         private readonly ReservaCanchaContext _context;
-
-        public PersonaController(ReservaCanchaContext context)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public PersonaController(ReservaCanchaContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
         }
@@ -56,16 +58,56 @@ namespace Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nombre,Apellido,Dni,FotoDni,Telefono")] Persona persona)
+        //public async Task<IActionResult> Create([Bind("Id,Nombre,Apellido,Dni,FotoDni,Telefono")] Persona persona)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Add(persona);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    return View(persona);
+        //}
+
+        public async Task<IActionResult> Create(PersonaViewModel model)
         {
+
+            string uniqueFileName = UploadedFile(model);
             if (ModelState.IsValid)
             {
-                _context.Add(persona);
+                Persona pelicula = new Persona()
+                {
+                    FotoDni = uniqueFileName,
+                    Nombre = model.Nombre,
+                    Apellido = model.Apellido,
+                    Dni = model.Dni,
+                    Telefono = model.Telefono,
+                };
+                _context.Add(pelicula);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(persona);
+            return View(model);
         }
+
+
+        private string UploadedFile(PersonaViewModel model)
+        {
+            string uniqueFileName = null;
+
+            if (model.Foto != null)
+            {
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Foto.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    model.Foto.CopyTo(fileStream);
+                }
+            }
+            return uniqueFileName;
+        }
+
 
         // GET: Persona/Edit/5
         public async Task<IActionResult> Edit(int? id)
